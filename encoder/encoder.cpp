@@ -1,15 +1,22 @@
 #include <cstdio>
+#include <chrono>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 #include "hardware/timer.h"
+#include "pico/multicore.h" // Used to blink LED
+
+// Write automated testing for throughput
 
 // Define pins for encoders
 #define ENCODER1_PIN_A 9
 #define ENCODER1_PIN_B 10
 #define ENCODER2_PIN_A 11
 #define ENCODER2_PIN_B 12
+
+// Define pin for LED
+#define LED_PIN 13
 
 // Variables to store encoder positions
 volatile int32_t encoder1_position = 0;
@@ -114,9 +121,37 @@ void init_encoders() {
     gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
 }
 
+// Initialize the LED
+void led_init(void) {
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+    gpio_put(LED_PIN, false);
+}
+
+// Function to blink the LED
+void led_blink(void) {
+    while (true) {
+        gpio_put(LED_PIN, true);
+        sleep_ms(500);
+        gpio_put(LED_PIN, false);
+        sleep_ms(500);
+    }
+}
+
+// Core 1 funciton pointer (wrapper)
+void core1_entry() {
+    led_blink();
+}
 
 int main() {
+
     stdio_init_all(); // Initialize all standard IO, including USB
+
+    // Initialize the LED
+    led_init();
+
+    // Launch LED on 2nd core
+    multicore_launch_core1(core1_entry);
 
     // Define the specific byte to wait for (e.g., 0xA5)
     uint8_t targetByte = 0x41;
@@ -131,10 +166,22 @@ int main() {
 
     // Signal byte received and initialize the encoders
     printf("Byte 0x%X received. Initializing encoders...\n", receivedByte);
+
+    // Time benchmark start
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    // Initialize the encoders
     init_encoders();
 
     // Signal pins are initialized
     printf("Pins initialized\n");
+
+    sleep_ms(1000); // Test for time benchmark
+
+    // Time benchmark end
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
+    printf("Initialization took %ld nanoseconds\n", duration.count());
 
     targetByte = 0x42;
 
