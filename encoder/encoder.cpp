@@ -1,15 +1,22 @@
 #include <cstdio>
+#include <chrono>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 #include "hardware/timer.h"
+#include "pico/multicore.h" // Used to blink LED
+
+// Write automated testing for throughput
 
 // Define pins for encoders
 #define ENCODER1_PIN_A 9
 #define ENCODER1_PIN_B 10
 #define ENCODER2_PIN_A 11
 #define ENCODER2_PIN_B 12
+
+// Define pin for LED
+#define LED_PIN 13
 
 // Define pin for LED
 #define LED_PIN 13
@@ -117,10 +124,10 @@ void init_encoders() {
     gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
 }
 
-int main() {
-    stdio_init_all(); // Initialize all standard IO, including USB
 
-    sleep_ms(2500);
+int main() {
+
+    stdio_init_all(); // Initialize all standard IO, including USB
 
     // Define the specific byte to wait for (e.g., 0xA5)
     uint8_t targetByte = 0x41;
@@ -135,10 +142,22 @@ int main() {
 
     // Signal byte received and initialize the encoders
     printf("Byte 0x%X received. Initializing encoders...\n", receivedByte);
+
+    // Time benchmark start
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    // Initialize the encoders
     init_encoders();
 
     // Signal pins are initialized
     printf("Pins initialized\n");
+
+    sleep_ms(1000); // Test for time benchmark
+
+    // Time benchmark end
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
+    printf("Initialization took %ld nanoseconds\n", duration.count());
 
     // Prompt user for data return
     printf("Waiting on control word to return encoder data: 0x%X\n", 0x42);
