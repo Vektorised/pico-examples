@@ -11,6 +11,9 @@
 #define ENCODER2_PIN_A 11
 #define ENCODER2_PIN_B 12
 
+// Define pin for LED
+#define LED_PIN 13
+
 // Variables to store encoder positions
 volatile int32_t encoder1_position = 0;
 volatile int32_t encoder2_position = 0;
@@ -114,9 +117,10 @@ void init_encoders() {
     gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
 }
 
-
 int main() {
     stdio_init_all(); // Initialize all standard IO, including USB
+
+    sleep_ms(2500);
 
     // Define the specific byte to wait for (e.g., 0xA5)
     uint8_t targetByte = 0x41;
@@ -136,6 +140,8 @@ int main() {
     // Signal pins are initialized
     printf("Pins initialized\n");
 
+    // Prompt user for data return
+    printf("Waiting on control word to return encoder data: 0x%X\n", 0x42);
     targetByte = 0x42;
 
     while (true) {

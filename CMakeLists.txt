@@ -87,4 +87,4 @@ add_subdirectory(usb)
 add_subdirectory(watchdog)
 add_subdirectory(sha)
 add_subdirectory(freertos)
-add_subdirectory(encoder)
+add_subdirectory(encoder) # Added for encoder build process

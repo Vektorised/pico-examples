@@ -2,6 +2,10 @@ add_executable(encoder
     encoder.cpp
     )
 
+# Set C++ standard to C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    
 # Link necessary libraries
 target_link_libraries(encoder pico_stdlib hardware_gpio hardware_irq hardware_uart hardware_timer)
 
