@@ -22,9 +22,10 @@
 #define INITIALIZE_INTERRUPTS_BYTE 0x41
 #define RETURN_ENCODER_BYTE 0x42
 #define DISABLE_INTERRUPTS_BYTE 0x43
-#define RESET_ENCODER_POS_BYTE 0x44
-#define RETURN_RPM_BYTE 0x45
-#define CLEAR_SCREEN_BYTE 0x46
+#define ENABLE_INTERRUPTS_BYTE 0x44
+#define RESET_ENCODER_POS_BYTE 0x45
+#define RETURN_RPM_BYTE 0x46
+#define CLEAR_SCREEN_BYTE 0x47
 
 #define PULSES_PER_REVOLUTION 800
 
@@ -192,6 +193,22 @@ int main() {
                 encoder1_position = 0;
                 encoder2_position = 0;
                 printf("Encoder positions reset\n");
+                break;
+
+            case DISABLE_INTERRUPTS_BYTE:
+                gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                printf("Interrupts disabled\n");
+                break;
+
+            case ENABLE_INTERRUPTS_BYTE:
+                gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+                gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+                gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+                gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+                printf("Interrupts enabled\n");
                 break;
 
             case RETURN_RPM_BYTE: {
