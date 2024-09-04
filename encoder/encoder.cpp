@@ -18,22 +18,33 @@
 // Define pin for LED
 #define LED_PIN 13
 
-// Define control words byte
-#define INITIALIZE_INTERRUPTS_BYTE 0x41
-#define RETURN_ENCODER_BYTE 0x42
-#define DISABLE_INTERRUPTS_BYTE 0x43
-#define ENABLE_INTERRUPTS_BYTE 0x44
-#define RESET_ENCODER_POS_BYTE 0x45
-#define RETURN_RPM_BYTE 0x46
-#define CLEAR_SCREEN_BYTE 0x47
-
+// Number of pulses per revolution
 #define PULSES_PER_REVOLUTION 800
+
+// Current (09/04/2024) function words are keyboard only
+
+// Return Data Functions
+#define RETURN_ENCODER_BYTE 0x45 // 'E'
+#define RETURN_RPM_BYTE 0x52 // 'R'
+
+// Interrupt Functions
+#define INITIALIZE_INTERRUPTS_BYTE 0x49 // 'I'
+#define TOGGLE_INTERRUPTS_BYTE 0x54 // 'T'
+
+// Encoder Functions
+#define RESET_ENCODER_POS_BYTE 0x5A // 'Z'
+
+// Screen Functions
+#define CLEAR_SCREEN_BYTE 0x43 // 'C'
 
 // Variables to store encoder positions
 volatile int32_t encoder1_position = 0;
 volatile int32_t encoder2_position = 0;
 
+// Last time (RPM Calculation)
 static uint32_t last_time = 0;
+
+static bool interrupts_enabled = false;
 
 // ISR for encoder 1 position
 void encoder1_isr(uint gpio, uint32_t events) {
@@ -155,7 +166,7 @@ int main() {
     printf("Waiting for byte: 0x%X\n", INITIALIZE_INTERRUPTS_BYTE);
     do {
         receivedByte = getchar(); // Blocking read
-        printf("Received: 0x%X\n", receivedByte); // Echo back the received byte
+        printf("Received: 0x%X, waiting for 0x%X\n", receivedByte, INITIALIZE_INTERRUPTS_BYTE); // Echo back the received byte
     } while (receivedByte != INITIALIZE_INTERRUPTS_BYTE);
 
     // Signal byte received and initialize the encoders
@@ -166,6 +177,9 @@ int main() {
 
     // Initialize the encoders
     init_encoders();
+
+    // Set interrupts as enabled
+    interrupts_enabled = true;
 
     // Signal pins are initialized
     printf("Pins initialized\n");
@@ -185,30 +199,33 @@ int main() {
 
         switch (receivedByte)
         {
-            case RETURN_ENCODER_BYTE:
+            case RETURN_ENCODER_BYTE: {
+                
                 printf("Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
                 break;
-            
-            case RESET_ENCODER_POS_BYTE:
+            }
+            case RESET_ENCODER_POS_BYTE: {
                 encoder1_position = 0;
                 encoder2_position = 0;
                 printf("Encoder positions reset\n");
                 break;
-
-            case DISABLE_INTERRUPTS_BYTE:
-                gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                printf("Interrupts disabled\n");
-                break;
-
-            case ENABLE_INTERRUPTS_BYTE:
-                gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-                gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-                gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-                gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-                printf("Interrupts enabled\n");
+            }
+            case TOGGLE_INTERRUPTS_BYTE:
+                if (interrupts_enabled) {
+                    gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                    gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                    gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                    gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+                    printf("Interrupts disabled\n");
+                    interrupts_enabled = false;
+                } else {
+                    gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);    
+                    gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+                    gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+                    gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+                    printf("Interrupts enabled\n");
+                    interrupts_enabled = true;
+                }
                 break;
 
             case RETURN_RPM_BYTE: {
