@@ -2,6 +2,19 @@
 
 // Write automated testing for throughput
 
+// Variables to store encoder positions
+volatile int32_t encoder1_position = 0;
+volatile int32_t encoder2_position = 0;
+
+// Last time (RPM Calculation)
+uint32_t last_time = 0;
+
+// Interrupts enabled
+bool interrupts_enabled = false;
+
+// Active reporting
+bool active_reporting = false;
+
 // ISR for encoder 1 position
 void encoder1_isr(uint gpio, uint32_t events) {
     // Init previous state
@@ -32,7 +45,9 @@ void encoder1_isr(uint gpio, uint32_t events) {
     last_b = b;
 
     // Debug output for encoder position
-    // printf("Encoder 1 ISR --- Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+    if (active_reporting) {
+        printf("Encoder 1 ISR --- Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+    }
 }
 // ISR for encoder 2 position
 void encoder2_isr(uint gpio, uint32_t events) {
@@ -64,7 +79,9 @@ void encoder2_isr(uint gpio, uint32_t events) {
     last_b = b;
 
     // Debug output for encoder position
-    // printf("Encoder 2 ISR --- Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+    if (active_reporting) {
+        printf("Encoder 2 ISR --- Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+    }
 }
 
 void gpio_isr_callback(uint gpio, uint32_t events) {

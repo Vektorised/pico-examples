@@ -37,14 +37,14 @@
 #define ACTIVE_REPORT_BYTE 0x41 // 'A'
 
 // Variables to store encoder positions
-volatile int32_t encoder1_position = 0;
-volatile int32_t encoder2_position = 0;
+extern volatile int32_t encoder1_position;
+extern volatile int32_t encoder2_position;
 
 // Last time (RPM Calculation)
-uint32_t last_time = 0;
+extern uint32_t last_time;
 
-bool interrupts_enabled = false;
-bool active_reporting = false;
+extern bool interrupts_enabled;
+extern bool active_reporting;
 
 // ISR for encoder 1 position
 void encoder1_isr(uint gpio, uint32_t events);
