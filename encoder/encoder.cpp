@@ -5,6 +5,8 @@
 // Variables to store encoder positions
 volatile int32_t encoder1_position = 0;
 volatile int32_t encoder2_position = 0;
+int32_t encoder1_last_position = 0;
+int32_t encoder2_last_position = 0;
 
 // Last time (RPM Calculation)
 uint32_t last_time = 0;
@@ -46,7 +48,7 @@ void encoder1_isr(uint gpio, uint32_t events) {
 
     // Debug output for encoder position
     if (active_reporting) {
-        printf("Encoder 1 ISR --- Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+        printf("Encoder 1 ISR --- Encoder 1 Position: %ld", encoder1_position);
     }
 }
 // ISR for encoder 2 position
@@ -80,7 +82,7 @@ void encoder2_isr(uint gpio, uint32_t events) {
 
     // Debug output for encoder position
     if (active_reporting) {
-        printf("Encoder 2 ISR --- Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+        printf("Encoder 2 ISR --- Encoder 2 Position: %ld\n", encoder2_position);
     }
 }
 
@@ -119,10 +121,18 @@ void init_encoders() {
 }
 
 // Function to calculate RPM for motors
-float calculate_rpm(int32_t encoder_position, uint32_t time_interval_ms) {
-    float revolutions = (float)encoder_position / PULSES_PER_REVOLUTION;
+float calculate_rpm(int32_t current_position, int32_t last_position, uint32_t time_interval_ms) {
+    // Calculate the difference in encoder position
+    int32_t position_difference = current_position - last_position;
+    
+    // Calculate revolutions based on position difference
+    float revolutions = (float)position_difference / PULSES_PER_REVOLUTION;
     printf("Revolutions: %f\n", revolutions);
-    float minutes = (float)time_interval_ms / 60000.0; // Convert milliseconds to minutes
+    
+    // Convert the time interval from milliseconds to minutes
+    float minutes = (float)time_interval_ms / 60000.0;
     printf("Minutes: %f\n", minutes);
+    
+    // Return the RPM
     return revolutions / minutes;
 }

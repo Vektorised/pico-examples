@@ -43,6 +43,8 @@
 // Variables to store encoder positions
 extern volatile int32_t encoder1_position;
 extern volatile int32_t encoder2_position;
+extern int32_t encoder1_last_position;
+extern int32_t encoder2_last_position;
 
 // Last time (RPM Calculation)
 extern uint32_t last_time;
@@ -63,4 +65,4 @@ void gpio_isr_callback(uint gpio, uint32_t events);
 void init_encoders();
 
 // Function to calculate RPM for motors
-float calculate_rpm(int32_t encoder_position, uint32_t time_interval_ms);
+float calculate_rpm(int32_t current_position, int32_t last_position, uint32_t time_interval_ms);

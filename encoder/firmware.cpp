@@ -97,15 +97,21 @@ int main() {
                 uint32_t time_interval = current_time - last_time;
 
                 // Calculate RPMs for each encoder
-                float rpm1 = calculate_rpm(encoder1_position, time_interval);
-                float rpm2 = calculate_rpm(encoder2_position, time_interval);
+                float rpm1 = calculate_rpm(encoder1_position, encoder1_last_position, time_interval);
+                encoder1_last_position = encoder1_position;
+
+                current_time = to_ms_since_boot(get_absolute_time());
+                time_interval = current_time - last_time;
+
+                float rpm2 = calculate_rpm(encoder2_position, encoder2_last_position, time_interval);
+                encoder2_last_position = encoder2_position;
 
                 printf("Encoder 1 RPM: %.2f, Encoder 2 RPM: %.2f\n", rpm1, rpm2);
 
                 // Update last_time and reset encoder positions
                 last_time = current_time;
+                }
                 break;
-            }
 
             // 'A' toggles active reporting
             case ACTIVE_REPORT_BYTE:
