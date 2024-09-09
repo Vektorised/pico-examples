@@ -1,5 +1,8 @@
 #include "encoder.hpp"
 
+#include <iostream>
+#include <string>
+
 int main() {
 
     stdio_init_all(); // Initialize all standard IO, including USB
@@ -44,14 +47,24 @@ int main() {
 
         switch (receivedByte)
         {
-            // 'E'
+            // 'E' returns both encoder positions
             case RETURN_ENCODER_BYTE: {
                 
                 printf("Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
                 break;
             }
+
+            // '1' returns encoder 1 position
+            case RETURN_ENCODER_1_BYTE:
+                printf("Encoder 1 Position: %ld\n", encoder1_position);
+                break;
+
+            // '2' returns encoder 2 position
+            case RETURN_ENCODER_2_BYTE:
+                printf("Encoder 2 Position: %ld\n", encoder2_position);
+                break;
             
-            // 'Z'
+            // 'Z' resets encoder positions
             case RESET_ENCODER_POS_BYTE: {
                 encoder1_position = 0;
                 encoder2_position = 0;
@@ -59,7 +72,7 @@ int main() {
                 break;
             }
 
-            // 'T'
+            // 'T' toggles interrupts
             case TOGGLE_INTERRUPTS_BYTE:
                 if (interrupts_enabled) {
                     gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
@@ -78,7 +91,7 @@ int main() {
                 }
                 break;
 
-            // 'R'
+            // 'R' returns RPM
             case RETURN_RPM_BYTE: {
                 uint32_t current_time = to_ms_since_boot(get_absolute_time());
                 uint32_t time_interval = current_time - last_time;
@@ -94,7 +107,7 @@ int main() {
                 break;
             }
 
-            // 'A'
+            // 'A' toggles active reporting
             case ACTIVE_REPORT_BYTE:
                 if (active_reporting)
                 {
@@ -108,10 +121,27 @@ int main() {
                 }
                 break;
 
-            // 'C'
+            // 'C' clears screen
             case CLEAR_SCREEN_BYTE:
-                printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+                printf("\033[2J\033[1;1H"); // Wizard magic
                 break;
+
+            // 'O' injects offset to encoder positions
+            case INJECT_OFFSET_BYTE:
+            {
+                std::string offsetInput = "";
+                int32_t offset = 0;
+
+                if (receivedByte == '1') 
+                {
+                    encoder1_position += offset;
+                } 
+                else if (receivedByte == '2') 
+                {
+                    encoder2_position += offset;
+                }
+                break;
+            }
 
             default:
                 break;

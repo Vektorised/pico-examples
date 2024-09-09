@@ -23,6 +23,10 @@
 
 // Return Data Functions
 #define RETURN_ENCODER_BYTE 0x45 // 'E'
+#define RETURN_ENCODER_1_BYTE 0x31 // '1'
+#define RETURN_ENCODER_2_BYTE 0x32 // '2'
+#define INJECT_OFFSET_BYTE 0x4F // 'O'
+
 #define RETURN_RPM_BYTE 0x52 // 'R'
 
 // Interrupt Functions
