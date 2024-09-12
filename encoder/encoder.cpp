@@ -1,3 +1,7 @@
+// encoder.cpp
+// Carson Powers
+// Source file for encoder functionality on the Adafruit Feather RP2040 on the AHSR robot
+
 #include "encoder.hpp" // Encoder header file
 
 // Write automated testing for throughput

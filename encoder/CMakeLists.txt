@@ -1,3 +1,7 @@
+# CMakeLists.txt
+# Carson Powers
+# CMakeList file for building encoder firmware meant for the Adafruit Feather RP2040
+
 set(CMAKE_CXX_STANDARD 17)
 
 # Set C++ standard to C++17

@@ -1,3 +1,7 @@
+// firmware.cpp
+// Carson Powers
+// Main firmware funcitons for the Adafruit Feather RP2040 board on the AHSR robot
+
 #include "encoder.hpp"
 
 #include <iostream>

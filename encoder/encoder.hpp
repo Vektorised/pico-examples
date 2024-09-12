@@ -1,3 +1,7 @@
+// encoder.hpp
+// Carson Powers
+// Header file for the firmware funcitonality on the Adafruit Feather RP2040 for the AHSR robot
+
 #include <cstdio>
 #include <chrono> // Time benchmarking
 #include "pico/stdlib.h"
