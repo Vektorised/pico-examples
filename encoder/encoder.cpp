@@ -23,36 +23,22 @@ bool active_reporting = false;
 
 // ISR for encoder 1 position
 void encoder1_isr(uint gpio, uint32_t events) {
-    // Disable interrupts while benchmarking to avoid interference
-    uint32_t irq_status = save_and_disable_interrupts();
-
     // Start the cycle counter
     uint32_t start_cycles = systick_hw->cvr;
 
-    // Init previous state
     static bool last_a = false;
     static bool last_b = false;
 
-    // Get current state of pins
+    // Get gpio values
     bool a = gpio_get(ENCODER1_PIN_A);
     bool b = gpio_get(ENCODER1_PIN_B);
 
-    // Determine direction based on A and B signals
+    // Quadrature decoding logic
     if (a != last_a) {
-        if (b != a) {
-            encoder1_position++; // Positive direction
-        } else {
-            encoder1_position--; // Negative Direction
-        }
-    } else if (b != last_b) {
-        if (a == b) {
-            encoder1_position++; // Positive direction
-        } else {
-            encoder1_position--; // Negative Direction
-        }
+        encoder1_position += (b != a) ? 1 : -1;
     }
 
-    // Update previous state
+    // Assign last values
     last_a = a;
     last_b = b;
 
@@ -62,47 +48,32 @@ void encoder1_isr(uint gpio, uint32_t events) {
     // Calculate the elapsed cycles (assuming the counter is counting down)
     uint32_t elapsed_cycles = start_cycles - end_cycles;
 
-    // Re-enable interrupts
-    restore_interrupts(irq_status);
+    float elapsedTime = (elapsed_cycles * 8) / 1000.0f; // Convert cycles to us
 
     // Debug output for encoder position and benchmark result
     if (active_reporting) {
-        printf("Encoder 1 ISR --- Encoder 1 Position: %ld --- Time: %u cycles\n", encoder1_position, elapsed_cycles);
+        printf("Encoder 1 ISR --- Encoder 1 Position: %ld --- Cycles: %u --- Time: %f us\n", encoder1_position, elapsed_cycles, elapsedTime);
     }
 }
 
 // ISR for encoder 2 position
 void encoder2_isr(uint gpio, uint32_t events) {
-    // Disable interrupts while benchmarking to avoid interference
-    uint32_t irq_status = save_and_disable_interrupts();
-
     // Start the cycle counter
     uint32_t start_cycles = systick_hw->cvr;
 
-    // Init previous state
     static bool last_a = false;
     static bool last_b = false;
 
-    // Get current state of pins
+    // Get gpio values
     bool a = gpio_get(ENCODER2_PIN_A);
     bool b = gpio_get(ENCODER2_PIN_B);
 
-    // Determine direction based on A and B signals
+    // Quadrature decoding logic
     if (a != last_a) {
-        if (b != a) {
-            encoder2_position++; // Positive direction
-        } else {
-            encoder2_position--; // Negative Direction
-        }
-    } else if (b != last_b) {
-        if (a == b) {
-            encoder2_position++; // Positive direction
-        } else {
-            encoder2_position--; // Negative Direction
-        }
+        encoder2_position += (b != a) ? 1 : -1;
     }
 
-    // Update previous state
+    // Assign last values
     last_a = a;
     last_b = b;
 
@@ -112,12 +83,11 @@ void encoder2_isr(uint gpio, uint32_t events) {
     // Calculate the elapsed cycles (assuming the counter is counting down)
     uint32_t elapsed_cycles = start_cycles - end_cycles;
 
-    // Re-enable interrupts
-    restore_interrupts(irq_status);
+    float elapsedTime = (elapsed_cycles * 8) / 1000.0f; // Convert cycles to us
 
     // Debug output for encoder position and benchmark result
     if (active_reporting) {
-        printf("Encoder 2 ISR --- Encoder 2 Position: %ld --- Time: %u cycles\n", encoder2_position, elapsed_cycles);
+        printf("Encoder 2 ISR --- Encoder 2 Position: %ld --- Cycles: %u --- Time: %f us\n", encoder2_position, elapsed_cycles, elapsedTime);
     }
 }
 
@@ -170,4 +140,31 @@ float calculate_rpm(int32_t current_position, int32_t last_position, uint32_t ti
     
     // Return the RPM
     return revolutions / minutes;
+}
+
+void setup_systick() {
+    // Set reload value to maximum (24-bit counter, max is 0xFFFFFF)
+    systick_hw->rvr = 0x00FFFFFF;
+    
+    // Clear current value register
+    systick_hw->cvr = 0;
+    
+    // Enable SysTick counter with processor clock
+    systick_hw->csr = 0x00000005;  // Enable counter and use processor clock
+}
+
+void check_systick_counting() {
+    // Print initial SysTick value
+    uint32_t start_cycles = systick_hw->cvr;
+    printf("SysTick start value: %u\n", start_cycles);
+
+    // Create a small delay (e.g., a busy wait loop)
+    for (volatile int i = 0; i < 1000000; i++);  // Busy wait loop
+    
+    // Print SysTick value after delay
+    uint32_t end_cycles = systick_hw->cvr;
+    printf("SysTick end value: %u\n", end_cycles);
+
+    // Print the difference in cycles
+    printf("Elapsed SysTick cycles: %u\n", start_cycles - end_cycles);
 }

@@ -28,6 +28,9 @@
 // Number of pulses per revolution
 #define PULSES_PER_REVOLUTION 800
 
+// Clock Frequency
+#define CLOCK_FREQUENCY_HZ 125000000  // 125 MHz for RP2040
+
 // Current (09/04/2024) function words are keyboard only
 
 // Return Data Functions
@@ -115,3 +118,21 @@ void init_encoders();
  * @return float
  */
 float calculate_rpm(int32_t current_position, int32_t last_position, uint32_t time_interval_ms);
+
+/**
+ * @brief DEBUG: Function to set up systick clock counter
+ * 
+ * Sets up systick clock counter.
+ * 
+ * @return void
+ */
+void setup_systick();
+
+/**
+ * @brief DEBUG: Function to check systick clock counter
+ * 
+ * Busy loop to evalutate difference in cycle count
+ * 
+ * @return void
+ */
+void check_systick_counting();

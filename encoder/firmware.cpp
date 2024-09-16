@@ -28,9 +28,6 @@ int main() {
     // Signal byte received and initialize the encoders
     printf("Byte 0x%X received. Initializing encoders...\n", receivedByte);
 
-    // Time benchmark start
-    auto startTime = std::chrono::high_resolution_clock::now();
-
     // Initialize the encoders
     init_encoders();
 
@@ -40,10 +37,9 @@ int main() {
     // Signal pins are initialized
     printf("Pins initialized\n");
 
-    // Time benchmark end
-    auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
-    printf("Initialization took %ld nanoseconds\n", duration.count());
+    setup_systick();
+
+    check_systick_counting();
 
     // Prompt user for data return
     printf("Waiting for control words.\n");
