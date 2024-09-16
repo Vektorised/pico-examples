@@ -56,17 +56,57 @@ extern uint32_t last_time;
 extern bool interrupts_enabled;
 extern bool active_reporting;
 
-// ISR for encoder 1 position
+/**
+ * @brief Interrupt service routine for encoder 1.
+ * 
+ * Called when interrupt is triggered. Updates encoder1_position based on encoder1_pin_a and encoder1_pin_b.
+ *
+ * @param gpio GPIO number
+ * @param events Events
+ * @return void
+ */
 void encoder1_isr(uint gpio, uint32_t events);
 
-// ISR for encoder 2 position
+/**
+ * @brief Interrupt service routine for encoder 2.
+ * 
+ * Called when interrupt is triggered. Updates encoder2_position based on encoder2_pin_a and encoder2_pin_b.
+ *
+ * @param gpio GPIO number
+ * @param events Events
+ * @return void
+ */
 void encoder2_isr(uint gpio, uint32_t events);
 
-// Middleman function for ISR
+/**
+ * @brief Middleman function for encoder ISRs.
+ * 
+ * Called when interrupt is triggered on either encoder channel.
+ *
+ * @param gpio GPIO number
+ * @param events Events
+ * @return void
+ */
 void gpio_isr_callback(uint gpio, uint32_t events);
 
-// Initialize encoders
+/**
+ * @brief Initialize encoders.
+ * 
+ * Initialize encoders and set up interrupt service routines.
+ *
+ * @return void
+ */
 void init_encoders();
 
-// Function to calculate RPM for motors
+/**
+ * @brief Function to calculate RPM for motors
+ * 
+ * Calculates RPM based on current position, last position, and time interval.
+ *
+ * @param current_position Current position
+ * @param last_position Last position
+ * @param time_interval_ms Time interval
+ * 
+ * @return float
+ */
 float calculate_rpm(int32_t current_position, int32_t last_position, uint32_t time_interval_ms);
