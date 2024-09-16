@@ -23,6 +23,12 @@ bool active_reporting = false;
 
 // ISR for encoder 1 position
 void encoder1_isr(uint gpio, uint32_t events) {
+    // Disable interrupts while benchmarking to avoid interference
+    uint32_t irq_status = save_and_disable_interrupts();
+
+    // Start the cycle counter
+    uint32_t start_cycles = systick_hw->cvr;
+
     // Init previous state
     static bool last_a = false;
     static bool last_b = false;
@@ -50,14 +56,29 @@ void encoder1_isr(uint gpio, uint32_t events) {
     last_a = a;
     last_b = b;
 
-    // Debug output for encoder position
+    // Stop the cycle counter
+    uint32_t end_cycles = systick_hw->cvr;
+
+    // Calculate the elapsed cycles (assuming the counter is counting down)
+    uint32_t elapsed_cycles = start_cycles - end_cycles;
+
+    // Re-enable interrupts
+    restore_interrupts(irq_status);
+
+    // Debug output for encoder position and benchmark result
     if (active_reporting) {
-        printf("Encoder 1 ISR --- Encoder 1 Position: %ld", encoder1_position);
+        printf("Encoder 1 ISR --- Encoder 1 Position: %ld --- Time: %u cycles\n", encoder1_position, elapsed_cycles);
     }
 }
 
 // ISR for encoder 2 position
 void encoder2_isr(uint gpio, uint32_t events) {
+    // Disable interrupts while benchmarking to avoid interference
+    uint32_t irq_status = save_and_disable_interrupts();
+
+    // Start the cycle counter
+    uint32_t start_cycles = systick_hw->cvr;
+
     // Init previous state
     static bool last_a = false;
     static bool last_b = false;
@@ -85,9 +106,18 @@ void encoder2_isr(uint gpio, uint32_t events) {
     last_a = a;
     last_b = b;
 
-    // Debug output for encoder position
+    // Stop the cycle counter
+    uint32_t end_cycles = systick_hw->cvr;
+
+    // Calculate the elapsed cycles (assuming the counter is counting down)
+    uint32_t elapsed_cycles = start_cycles - end_cycles;
+
+    // Re-enable interrupts
+    restore_interrupts(irq_status);
+
+    // Debug output for encoder position and benchmark result
     if (active_reporting) {
-        printf("Encoder 2 ISR --- Encoder 2 Position: %ld\n", encoder2_position);
+        printf("Encoder 2 ISR --- Encoder 2 Position: %ld --- Time: %u cycles\n", encoder2_position, elapsed_cycles);
     }
 }
 

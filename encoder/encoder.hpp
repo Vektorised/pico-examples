@@ -3,7 +3,12 @@
 // Header file for the firmware funcitonality on the Adafruit Feather RP2040 for the AHSR robot
 
 #include <cstdio>
-#include <chrono> // Time benchmarking
+
+// Time benchmarking
+#include <chrono>
+#include "hardware/sync.h"
+#include "hardware/structs/systick.h"
+
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
