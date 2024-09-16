@@ -55,6 +55,7 @@ void encoder1_isr(uint gpio, uint32_t events) {
         printf("Encoder 1 ISR --- Encoder 1 Position: %ld", encoder1_position);
     }
 }
+
 // ISR for encoder 2 position
 void encoder2_isr(uint gpio, uint32_t events) {
     // Init previous state

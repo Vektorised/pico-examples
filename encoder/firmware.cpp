@@ -2,6 +2,10 @@
 // Carson Powers
 // Main firmware funcitons for the Adafruit Feather RP2040 board on the AHSR robot
 
+// 09/12/2024 Carson Powers: Add drivers for IMU operations
+// might need to undermine motor controller board and bypass serial
+// console on the on board ATmega32U4
+
 #include "encoder.hpp"
 
 #include <iostream>
