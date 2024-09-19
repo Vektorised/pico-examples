@@ -4,8 +4,6 @@
 
 #include "encoder.hpp" // Encoder header file
 
-// Write automated testing for throughput
-
 // Variables to store encoder positions
 volatile int32_t encoder1_position = 0;
 volatile int32_t encoder2_position = 0;
@@ -23,8 +21,11 @@ bool active_reporting = false;
 
 // ISR for encoder 1 position
 void encoder1_isr(uint gpio, uint32_t events) {
-    // Start the cycle counter
-    uint32_t start_cycles = systick_hw->cvr;
+
+    // -------------------- BENCHMARK CODE -------------------- //
+    // // Start the cycle counter
+    // uint32_t start_cycles = systick_hw->cvr;
+    // -------------------- BENCHMARK CODE -------------------- //
 
     static bool last_a = false;
     static bool last_b = false;
@@ -42,24 +43,28 @@ void encoder1_isr(uint gpio, uint32_t events) {
     last_a = a;
     last_b = b;
 
-    // Stop the cycle counter
-    uint32_t end_cycles = systick_hw->cvr;
+    // -------------------- BENCHMARK CODE -------------------- //
+    // // Stop the cycle counter
+    // uint32_t end_cycles = systick_hw->cvr;
 
-    // Calculate the elapsed cycles (assuming the counter is counting down)
-    uint32_t elapsed_cycles = start_cycles - end_cycles;
+    // // Calculate the elapsed cycles (assuming the counter is counting down)
+    // uint32_t elapsed_cycles = start_cycles - end_cycles;
 
-    float elapsedTime = (elapsed_cycles * 8) / 1000.0f; // Convert cycles to us
+    // float elapsedTime = (elapsed_cycles * 8) / 1000.0f; // Convert cycles to us
 
-    // Debug output for encoder position and benchmark result
-    if (active_reporting) {
-        printf("Encoder 1 ISR --- Encoder 1 Position: %ld --- Cycles: %u --- Time: %f us\n", encoder1_position, elapsed_cycles, elapsedTime);
-    }
+    // // Debug output for encoder position and benchmark result
+    // if (active_reporting) {
+    //     printf("Encoder 1 ISR --- Encoder 1 Position: %ld --- Cycles: %u --- Time: %f us\n", encoder1_position, elapsed_cycles, elapsedTime);
+    // }
+    // -------------------- BENCHMARK CODE -------------------- //
 }
 
 // ISR for encoder 2 position
 void encoder2_isr(uint gpio, uint32_t events) {
-    // Start the cycle counter
-    uint32_t start_cycles = systick_hw->cvr;
+    // -------------------- BENCHMARK CODE -------------------- //
+    // // Start the cycle counter
+    // uint32_t start_cycles = systick_hw->cvr;
+    // -------------------- BENCHMARK CODE -------------------- //
 
     static bool last_a = false;
     static bool last_b = false;
@@ -77,20 +82,23 @@ void encoder2_isr(uint gpio, uint32_t events) {
     last_a = a;
     last_b = b;
 
-    // Stop the cycle counter
-    uint32_t end_cycles = systick_hw->cvr;
+    // -------------------- BENCHMARK CODE -------------------- //
+    // // Stop the cycle counter
+    // uint32_t end_cycles = systick_hw->cvr;
 
-    // Calculate the elapsed cycles (assuming the counter is counting down)
-    uint32_t elapsed_cycles = start_cycles - end_cycles;
+    // // Calculate the elapsed cycles (assuming the counter is counting down)
+    // uint32_t elapsed_cycles = start_cycles - end_cycles;
 
-    float elapsedTime = (elapsed_cycles * 8) / 1000.0f; // Convert cycles to us
+    // float elapsedTime = (elapsed_cycles * 8) / 1000.0f; // Convert cycles to us
 
-    // Debug output for encoder position and benchmark result
-    if (active_reporting) {
-        printf("Encoder 2 ISR --- Encoder 2 Position: %ld --- Cycles: %u --- Time: %f us\n", encoder2_position, elapsed_cycles, elapsedTime);
-    }
+    // // Debug output for encoder position and benchmark result
+    // if (active_reporting) {
+    //     printf("Encoder 2 ISR --- Encoder 2 Position: %ld --- Cycles: %u --- Time: %f us\n", encoder2_position, elapsed_cycles, elapsedTime);
+    // }
+    // -------------------- BENCHMARK CODE -------------------- //
 }
 
+// ISR for both encoders (rp2040 has only 1 GPIO interrupt)
 void gpio_isr_callback(uint gpio, uint32_t events) {
     if (gpio == ENCODER1_PIN_A || gpio == ENCODER1_PIN_B) {
         encoder1_isr(gpio, events);  // Call encoder 1 ISR
@@ -132,11 +140,9 @@ float calculate_rpm(int32_t current_position, int32_t last_position, uint32_t ti
     
     // Calculate revolutions based on position difference
     float revolutions = (float)position_difference / PULSES_PER_REVOLUTION;
-    printf("Revolutions: %f\n", revolutions);
     
     // Convert the time interval from milliseconds to minutes
     float minutes = (float)time_interval_ms / 60000.0;
-    printf("Minutes: %f\n", minutes);
     
     // Return the RPM
     return revolutions / minutes;
