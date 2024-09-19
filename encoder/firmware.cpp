@@ -11,49 +11,17 @@
 #include <iostream>
 #include <string>
 
-int main() {
+void process_usb_communications()
+{
+    if (tud_cdc_available())
+    {
+        uint8_t receivedByte = getchar(); // Blocking read
 
-    stdio_init_all(); // Initialize all standard IO, including USB
-
-    // Define the specific byte to wait for
-    uint8_t receivedByte;
-
-    // Wait for the specific byte
-    printf("Waiting for byte: 0x%X\n", INITIALIZE_INTERRUPTS_BYTE);
-    do {
-        receivedByte = getchar(); // Blocking read
-        printf("Received: 0x%X, waiting for 0x%X\n", receivedByte, INITIALIZE_INTERRUPTS_BYTE); // Echo back the received byte
-    } while (receivedByte != INITIALIZE_INTERRUPTS_BYTE);
-
-    // Signal byte received and initialize the encoders
-    printf("Byte 0x%X received. Initializing encoders...\n", receivedByte);
-
-    // Initialize the encoders
-    init_encoders();
-
-    // Set interrupts as enabled
-    interrupts_enabled = true;
-
-    // Signal pins are initialized
-    printf("Pins initialized\n");
-
-    setup_systick();
-
-    check_systick_counting();
-
-    // Prompt user for data return
-    printf("Waiting for control words.\n");
-
-    while (true) {
-        receivedByte = getchar(); // Blocking read
-
-        // printf("Received: 0x%X\n", receivedByte); // Echo back the received byte
-
+        // Decipher recieved byte
         switch (receivedByte)
         {
             // 'E' returns both encoder positions
             case RETURN_ENCODER_BYTE: {
-                
                 printf("Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
                 break;
             }
@@ -156,7 +124,52 @@ int main() {
             default:
                 break;
         }
+    }
 
+    return;
+}
+
+int main() {
+
+    stdio_init_all(); // Initialize all standard IO, including USB
+    tusb_init(); // Initialize TinyUSB
+
+    // Sets up systick counter for benchmarking
+    setup_systick();    
+    check_systick_counting();
+
+
+    // -------------------- Wait to initialize -------------------- //
+
+    // Define the specific byte to wait for
+    uint8_t receivedByte;
+
+    // Wait for the specific byte
+    printf("Waiting for byte: 0x%X\n", INITIALIZE_INTERRUPTS_BYTE);
+    do {
+        receivedByte = getchar(); // Blocking read
+        printf("Received: 0x%X, waiting for 0x%X\n", receivedByte, INITIALIZE_INTERRUPTS_BYTE); // Echo back the received byte
+    } while (receivedByte != INITIALIZE_INTERRUPTS_BYTE);
+
+    // Signal byte received and initialize the encoders
+    printf("Byte 0x%X received. Initializing encoders...\n", receivedByte);
+
+    // Initialize the encoders
+    init_encoders();
+
+    // Set interrupts as enabled
+    interrupts_enabled = true;
+
+    // Signal pins are initialized
+    printf("Pins initialized\n");
+
+    // -------------------- Initialized -------------------- //
+
+    // Prompt user for data return
+    printf("Waiting for control words.\n");
+
+    while (true) {
+        process_usb_communications(); // Process USB communications
         tight_loop_contents(); // Prevent the main loop from exiting
     }
 

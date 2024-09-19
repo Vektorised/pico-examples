@@ -9,12 +9,17 @@
 #include "hardware/sync.h"
 #include "hardware/structs/systick.h"
 
+// Pico libraries
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 #include "hardware/timer.h"
 #include "pico/multicore.h" // Used to blink LED
+#include "pico/stdlib.h"
+
+// TinyUSB
+#include "tusb.h"
 
 // Define pins for encoders
 #define ENCODER1_PIN_A 9
@@ -52,6 +57,9 @@
 #define CLEAR_SCREEN_BYTE 0x43 // 'C'
 #define ACTIVE_REPORT_BYTE 0x41 // 'A'
 
+// Buffer Size
+#define BUFFER_SIZE 256
+
 // Variables to store encoder positions
 extern volatile int32_t encoder1_position;
 extern volatile int32_t encoder2_position;
@@ -63,6 +71,8 @@ extern uint32_t last_time;
 
 extern bool interrupts_enabled;
 extern bool active_reporting;
+
+extern uint8_t dataBuffer[BUFFER_SIZE];
 
 /**
  * @brief Interrupt service routine for encoder 1.

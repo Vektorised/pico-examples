@@ -16,6 +16,7 @@ add_executable(firmware
 # Link necessary libraries
 target_link_libraries(firmware pico_stdlib hardware_gpio hardware_irq hardware_uart hardware_timer pico_multicore)
 
+# Might need to alter given serialized USB communications are needed
 # enable usb / disable uart
 pico_enable_stdio_usb(firmware 1)
 pico_enable_stdio_uart(firmware 0)
