@@ -157,7 +157,7 @@ int main() {
                 break;
         }
 
-        // tight_loop_contents(); // Prevent the main loop from exiting
+        tight_loop_contents(); // Prevent the main loop from exiting
     }
 
     return 0;
