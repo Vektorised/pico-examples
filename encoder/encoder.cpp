@@ -4,6 +4,16 @@
 
 #include "encoder.hpp" // Encoder header file
 
+// Pico libraries
+#include "pico/stdlib.h"
+#include "hardware/gpio.h"
+#include "hardware/irq.h"
+#include "hardware/sync.h"
+#include "hardware/structs/systick.h"
+
+// TinyUSB for USB communication
+#include "tusb.h"
+
 // Variables to store encoder positions
 volatile int32_t encoder1_position = 0;
 volatile int32_t encoder2_position = 0;

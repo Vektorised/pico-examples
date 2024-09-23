@@ -2,24 +2,11 @@
 // Carson Powers
 // Header file for the firmware funcitonality on the Adafruit Feather RP2040 for the AHSR robot
 
-#include <cstdio>
-
-// Time benchmarking
-#include <chrono>
-#include "hardware/sync.h"
-#include "hardware/structs/systick.h"
+#include <cstdint>  // Data types (uintX_t, intX_t, etc)
 
 // Pico libraries
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
-#include "hardware/irq.h"
-#include "hardware/uart.h"
-#include "hardware/timer.h"
-#include "pico/multicore.h" // Used to blink LED
-#include "pico/stdlib.h"
-
-// TinyUSB
-#include "tusb.h"
 
 // Define pins for encoders
 #define ENCODER1_PIN_A 9
