@@ -8,63 +8,117 @@
 
 #include "encoder.hpp"
 
-#include <iostream>
-#include <string>
+#include <iostream> // IO
+#include <string> // String
+
+// Pico libraries
+#include "pico/platform.h"
+
+// TinyUSB for USB communication
+#include "tusb.h"
 
 void process_usb_communications()
 {
     if (tud_cdc_available())
     {
-        uint8_t receivedByte = getchar(); // Blocking read
+        uint8_t receivedByte = tud_cdc_read_char(); // Blocking read
 
         // Decipher recieved byte
         switch (receivedByte)
         {
             // 'E' returns both encoder positions
-            case RETURN_ENCODER_BYTE: {
-                printf("Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+            case RETURN_ENCODER_BYTE: 
+            {                
+                // Little endian buffer
+                uint8_t encoder_positions[8];
+
+                // Copy encoder positions (need to cast to void* for memcpy)
+                memcpy(&encoder_positions[0], (const void *)&encoder1_position, sizeof(encoder1_position));
+                memcpy(&encoder_positions[4], (const void *)&encoder2_position, sizeof(encoder2_position));
+
+                // Write to USB
+                tud_cdc_write(encoder_positions, sizeof(encoder_positions));
+                
+                // Flush buffer
+                tud_cdc_write_flush();
+                
+                // printf("Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
                 break;
             }
 
             // '1' returns encoder 1 position
-            case RETURN_ENCODER_1_BYTE:
-                printf("Encoder 1 Position: %ld\n", encoder1_position);
+            case RETURN_ENCODER_1_BYTE: 
+            {
+                // Little endian buffer
+                uint8_t encoder_positions[4];
+
+                // Copy encoder positions (need to cast to void* for memcpy)
+                memcpy(&encoder_positions[0], (const void *)&encoder1_position, sizeof(encoder1_position));
+
+                // Write to USB
+                tud_cdc_write(encoder_positions, sizeof(encoder_positions));
+                
+                // Flush buffer
+                tud_cdc_write_flush();
+                
+                // printf("Encoder 1 Position: %ld\n", encoder1_position);
                 break;
+            }
 
             // '2' returns encoder 2 position
             case RETURN_ENCODER_2_BYTE:
-                printf("Encoder 2 Position: %ld\n", encoder2_position);
+            {    
+                // Little endian buffer
+                uint8_t encoder_positions[4];
+
+                // Copy encoder positions (need to cast to void* for memcpy)
+                memcpy(&encoder_positions[0], (const void *)&encoder2_position, sizeof(encoder2_position));
+
+                // Write to USB
+                tud_cdc_write(encoder_positions, sizeof(encoder_positions));
+                
+                // Flush buffer
+                tud_cdc_write_flush();
+                
+                // printf("Encoder 2 Position: %ld\n", encoder2_position);
                 break;
-            
+            }
+
             // 'Z' resets encoder positions
-            case RESET_ENCODER_POS_BYTE: {
+            case RESET_ENCODER_POS_BYTE:
+            {
                 encoder1_position = 0;
                 encoder2_position = 0;
-                printf("Encoder positions reset\n");
+
+                // printf("Encoder positions reset\n");
                 break;
             }
 
             // 'T' toggles interrupts
             case TOGGLE_INTERRUPTS_BYTE:
-                if (interrupts_enabled) {
-                    gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                    gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                    gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                    gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-                    printf("Interrupts disabled\n");
+            {
+                if (interrupts_enabled) 
+                {
+                    // Disable interrupts globally
+                    irq_set_mask_enabled(0xFFFFFFFF, false);
+
+                    // printf("Interrupts disabled\n");
                     interrupts_enabled = false;
-                } else {
-                    gpio_set_irq_enabled(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);    
-                    gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-                    gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-                    gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
-                    printf("Interrupts enabled\n");
+                } 
+                else 
+                {
+                    // Enable interrupts globally
+                    irq_set_mask_enabled(0xFFFFFFFF, true);
+
+                    // printf("Interrupts enabled\n");
                     interrupts_enabled = true;
                 }
                 break;
+            }
 
             // 'R' returns RPM
-            case RETURN_RPM_BYTE: {
+            case RETURN_RPM_BYTE: 
+            {
                 uint32_t current_time = to_ms_since_boot(get_absolute_time());
                 uint32_t time_interval = current_time - last_time;
 
@@ -78,15 +132,29 @@ void process_usb_communications()
                 float rpm2 = calculate_rpm(encoder2_position, encoder2_last_position, time_interval);
                 encoder2_last_position = encoder2_position;
 
-                printf("Encoder 1 RPM: %.2f, Encoder 2 RPM: %.2f\n", rpm1, rpm2);
+                // Little endian buffer
+                uint8_t motor_rpms[8];
+
+                // Copy encoder positions (need to cast to void* for memcpy)
+                memcpy(&motor_rpms[0], (const void *)&rpm1, sizeof(rpm1));
+                memcpy(&motor_rpms[4], (const void *)&rpm2, sizeof(rpm2));
+
+                // Write to USB
+                tud_cdc_write(motor_rpms, sizeof(motor_rpms));
+                
+                // Flush buffer
+                tud_cdc_write_flush();
 
                 // Update last_time and reset encoder positions
                 last_time = current_time;
-                }
+                
+                // printf("Encoder 1 RPM: %.2f, Encoder 2 RPM: %.2f\n", rpm1, rpm2);
                 break;
+            }
 
             // 'A' toggles active reporting
             case ACTIVE_REPORT_BYTE:
+            {
                 if (active_reporting)
                 {
                     printf("Active reporting disabled\n");
@@ -98,11 +166,14 @@ void process_usb_communications()
                     active_reporting = true;
                 }
                 break;
+            }
 
             // 'C' clears screen
             case CLEAR_SCREEN_BYTE:
+            {
                 printf("\033[2J\033[1;1H"); // Wizard magic
                 break;
+            }
 
             // 'O' injects offset to encoder positions
             case INJECT_OFFSET_BYTE:
