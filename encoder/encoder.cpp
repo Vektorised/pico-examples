@@ -141,6 +141,12 @@ void init_encoders() {
     gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+
+    // Zero the encoder positions
+    encoder1_position = 0;
+    encoder2_position = 0;
+    encoder1_last_position = 0;
+    encoder2_last_position = 0;
 }
 
 // Function to calculate RPM for motors

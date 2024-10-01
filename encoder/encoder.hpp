@@ -43,6 +43,7 @@
 // Screen Functions
 #define CLEAR_SCREEN_BYTE 0x43 // 'C'
 #define ACTIVE_REPORT_BYTE 0x41 // 'A'
+#define PING_FEATHER_BYTE 0x50 // 'P'
 
 // Buffer Size
 #define BUFFER_SIZE 256
