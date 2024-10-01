@@ -152,6 +152,20 @@ void process_usb_communications()
                 break;
             }
 
+            case PING_FEATHER_BYTE:
+            {
+                // Little endian buffer
+                uint8_t ping_buffer[1] = {0x69};
+
+                // Write to USB
+                tud_cdc_write(ping_buffer, sizeof(ping_buffer));
+                
+                // Flush buffer
+                tud_cdc_write_flush();
+
+                break;
+            }
+
             // 'A' toggles active reporting
             case ACTIVE_REPORT_BYTE:
             {
