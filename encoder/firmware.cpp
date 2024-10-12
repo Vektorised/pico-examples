@@ -216,14 +216,14 @@ int main() {
     uint8_t receivedByte;
 
     // Wait for the specific byte
-    printf("Waiting for byte: 0x%X\n", INITIALIZE_INTERRUPTS_BYTE);
+    // printf("Waiting for byte: 0x%X\n", INITIALIZE_INTERRUPTS_BYTE);
     do {
         receivedByte = getchar(); // Blocking read
-        printf("Received: 0x%X, waiting for 0x%X\n", receivedByte, INITIALIZE_INTERRUPTS_BYTE); // Echo back the received byte
+        // printf("Received: 0x%X, waiting for 0x%X\n", receivedByte, INITIALIZE_INTERRUPTS_BYTE); // Debug message
     } while (receivedByte != INITIALIZE_INTERRUPTS_BYTE);
 
     // Signal byte received and initialize the encoders
-    printf("Byte 0x%X received. Initializing encoders...\n", receivedByte);
+    // printf("Byte 0x%X received. Initializing encoders...\n", receivedByte); // Debug message
 
     // Initialize the encoders
     init_encoders();
@@ -232,12 +232,12 @@ int main() {
     interrupts_enabled = true;
 
     // Signal pins are initialized
-    printf("Pins initialized\n");
+    // printf("Pins initialized\n"); // Debug message
 
     // -------------------- Initialized -------------------- //
 
     // Prompt user for data return
-    printf("Waiting for control words.\n");
+    // printf("Waiting for control words.\n"); // Debug message
 
     while (true) {
         process_usb_communications(); // Process USB communications
