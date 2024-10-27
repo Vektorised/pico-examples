@@ -15,6 +15,16 @@
 #define ENCODER2_PIN_A 11
 #define ENCODER2_PIN_B 12
 
+// Define command bytes
+#define RETURN_ENCODER_BYTE 0x45 // 'E'
+#define RETURN_ENCODER_1_BYTE 0x31 // '1'
+#define RETURN_ENCODER_2_BYTE 0x32 // '2'
+
+// Removed rpm function as it can be calculated faster on jetson side
+
+// Define encoder data buffer length
+#define ENCODER_DATA_BUFFER_LENGTH 8
+
 // Number of pulses per revolution (configure based on your encoder)
 #define PULSES_PER_REVOLUTION 800
 
@@ -34,7 +44,7 @@ public:
     /**
      * @brief Initialize the encoder pins and interrupts.
      */
-    void init();
+    void initializeEncoder();
 
     /**
      * @brief Get the current encoder position.

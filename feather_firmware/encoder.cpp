@@ -23,7 +23,7 @@ Encoder::Encoder(uint pin_a, uint pin_b)
 /**
  * @brief Initialize the encoder pins and setup interrupts.
  */
-void Encoder::init() {
+void Encoder::initializeEncoder() {
     // Initialize GPIO pins for the encoder
     gpio_init(pin_a_);
     gpio_init(pin_b_);

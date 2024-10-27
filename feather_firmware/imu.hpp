@@ -2,10 +2,14 @@
 // Carson Powers
 // Header file for the IMU functionality on the Adafruit Feather RP2040 on the AHSR robot
 
+// IMU: MPU6050
+// Datasheet: http://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
+// Register Map: http://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
 
 #include <cstdint>
 
 #define RETURN_IMU_DATA_BYTE 0x49 // 'I'
+#define IMU_DATA_BUFFER_LENGTH 14
 
 #define MPU6050_ADDR 0x68
 

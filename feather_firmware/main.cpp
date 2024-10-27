@@ -6,14 +6,14 @@
 #include "pico/stdlib.h"
 
 int main() {
-    // Initialize stdio for debugging purposes
+    // Initialize stdio for USB communication
     stdio_init_all();
     
     // Create an instance of the Feather class
     Feather feather;
 
     // Initialize the robot (encoders, IMU, etc.)
-    feather.init();
+    feather.initializeFeather();
 
     // Main control loop (handles periodic tasks)
     feather.loop();
