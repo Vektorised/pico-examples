@@ -4,6 +4,7 @@
 #include "encoder.hpp"
 #include "imu.hpp"
 #include "pico/stdlib.h"
+#include "tusb.h"
 
 /**
  * @class Feather
@@ -19,13 +20,23 @@ public:
     /**
      * @brief Initialize the robot's components (encoders, IMU, etc.).
      */
-    void init();
+    void initializeFeather();
+
+    /**
+     * @brief Process usb command and return apporpriate response.
+     */
+    void process_usb_communication();
 
     /**
      * @brief Main loop of the robot.
      * This will handle periodic tasks such as reading sensor data.
      */
     void loop();
+
+    /**
+     * @brief Handle GPIO interrupts and delegate them to the correct encoder.
+     */
+    static void gpio_callback(uint gpio, uint32_t events);
 
 private:
 
@@ -34,11 +45,6 @@ private:
     Encoder encoder1_;  ///< Encoder object for the first encoder.
     Encoder encoder2_;  ///< Encoder object for the second encoder.
     IMU imu_;           ///< IMU object for reading IMU data.
-
-    /**
-     * @brief Handle GPIO interrupts and delegate them to the correct encoder.
-     */
-    static void gpio_callback(uint gpio, uint32_t events);
 };
 
 #endif // FEATHER_HPP
