@@ -75,8 +75,6 @@ void Feather::process_usb_communication() {
                 memcpy(&encoder_positions_buffer[0], &encoder1_position, sizeof(encoder1_position));
                 memcpy(&encoder_positions_buffer[4], &encoder2_position, sizeof(encoder2_position));
 
-                printf("Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
-
                 // Write encoder positions to USB
                 tud_cdc_write(encoder_positions_buffer, ENCODER_DATA_BUFFER_LENGTH);
 
