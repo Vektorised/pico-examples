@@ -86,16 +86,6 @@ void Feather::process_usb_communication() {
                 // 6 - 7 : Temperature
                 // 8 - 13 : Gyroscope (X, Y, Z)
                 imu_.readIMU(0x3B, imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
-
-                uint8_t accelX = imu_data_buffer[0] << 8 | imu_data_buffer[1];
-
-                printf("Accelerometer X: %d\n", (imu_data_buffer[0] << 8 | imu_data_buffer[1]));
-                // printf("Accelerometer Y: %d\n", (imu_data_buffer[2] << 8 | imu_data_buffer[3]));
-                // printf("Accelerometer Z: %d\n", (imu_data_buffer[4] << 8 | imu_data_buffer[5]));
-                // printf("Temperature: %d\n", (imu_data_buffer[6] << 8 | imu_data_buffer[7]));
-                // printf("Gyroscope X: %d\n", (imu_data_buffer[8] << 8 | imu_data_buffer[9]));
-                // printf("Gyroscope Y: %d\n", (imu_data_buffer[10] << 8 | imu_data_buffer[11]));
-                // printf("Gyroscope Z: %d\n", (imu_data_buffer[12] << 8 | imu_data_buffer[13]));
                 
                 // Write IMU data buffer to USB
                 tud_cdc_write(imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
