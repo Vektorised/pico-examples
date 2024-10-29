@@ -36,23 +36,17 @@ public:
      */
     void loop();
 
+private:
     /**
      * @brief Handle GPIO interrupts and delegate them to the correct encoder.
      */
     static void gpio_callback(uint gpio, uint32_t events);
-
+    
+    static Feather* feather_instance_;  ///< Static pointer to the current instance of the Feather class.
+    
     Encoder encoder1_;  ///< Encoder object for the first encoder.
     Encoder encoder2_;  ///< Encoder object for the second encoder.
-
     IMU imu_;           ///< IMU object for reading IMU data.
-
-private:
-
-    static Feather* instance_;  ///< Static pointer to the current instance of the Feather class.
-
-    // Encoder encoder1_;  ///< Encoder object for the first encoder.
-    // Encoder encoder2_;  ///< Encoder object for the second encoder.
-    // IMU imu_;           ///< IMU object for reading IMU data.
 };
 
 #endif // FEATHER_HPP

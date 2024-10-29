@@ -4,9 +4,7 @@
 
 #include "encoder.hpp"
 #include "pico/stdlib.h"
-
-// Initialize the static instance pointer
-Encoder* Encoder::instance_ = nullptr;
+#include <cstdio>
 
 /**
  * @brief Construct a new Encoder object.
@@ -14,27 +12,23 @@ Encoder* Encoder::instance_ = nullptr;
  * @param pin_b GPIO pin for channel B.
  */
 Encoder::Encoder(uint pin_a, uint pin_b)
-    : pin_a_(pin_a), pin_b_(pin_b), position_(0), last_a_(false), last_b_(false) {
-    
-    // Set instance pointer to current object
-    instance_ = this;
-}
+    : pin_a_(pin_a), pin_b_(pin_b), position_(0), last_a_(false), last_b_(false) {}
 
 /**
  * @brief Initialize the encoder pins and setup interrupts.
  */
 void Encoder::initializeEncoder() {
     // Initialize GPIO pins for the encoder
-    gpio_init(pin_a_);
-    gpio_init(pin_b_);
-    gpio_set_dir(pin_a_, GPIO_IN);
-    gpio_set_dir(pin_b_, GPIO_IN);
-    gpio_pull_up(pin_a_);
-    gpio_pull_up(pin_b_);
+    // gpio_init(pin_a_);
+    // gpio_init(pin_b_);
+    // gpio_set_dir(pin_a_, GPIO_IN);
+    // gpio_set_dir(pin_b_, GPIO_IN);
+    // gpio_pull_up(pin_a_);
+    // gpio_pull_up(pin_b_);
 
-    // Attach interrupts to encoder pins
-    gpio_set_irq_enabled_with_callback(pin_a_, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, handle_interrupt);
-    gpio_set_irq_enabled(pin_b_, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    // // Attach interrupts to encoder pins
+    // gpio_set_irq_enabled_with_callback(pin_a_, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, handle_interrupt);
+    // gpio_set_irq_enabled(pin_b_, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
 }
 
 /**
@@ -44,24 +38,18 @@ void Encoder::initializeEncoder() {
  * @param events Events that occurred.
  */
 void Encoder::handle_interrupt(uint gpio, uint32_t events) {
+    // Get current pin states
+    bool a = gpio_get(pin_a_);
+    bool b = gpio_get(pin_b_);
 
-    if (instance_)
-    {
-        // Get current pin states
-        bool a = gpio_get(instance_->pin_a_);
-        bool b = gpio_get(instance_->pin_b_);
-
-        // Quadrature decoding logic
-        if (gpio == instance_->pin_a_ && a != instance_->last_a_) {
-            instance_->position_ += (a != b) ? 1 : -1;
-        } else if (gpio == instance_->pin_b_ && b != instance_->last_b_) {
-            instance_->position_ += (a != b) ? 1 : -1;
-        }
-
-        // Update last states
-        instance_->last_a_ = a;
-        instance_->last_b_ = b;
+     // Quadrature decoding logic
+    if (a != last_a_) {
+        position_ += (b != a) ? 1 : -1;
     }
+
+    // Update last states
+    last_a_ = a;
+    last_b_ = b;
 }
 
 /**

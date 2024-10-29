@@ -1,7 +1,7 @@
 #include "feather.hpp"
 
 // Initialize the static instance pointer
-Feather* Feather::instance_ = nullptr;
+Feather* Feather::feather_instance_ = nullptr;
 
 /**
  * @brief Construct a new Feather object.
@@ -13,25 +13,37 @@ Feather::Feather()
       imu_() {
     
     // Set static instance pointer to current object
-    instance_ = this;
+    feather_instance_ = this;
 }
 
 /**
  * @brief Initialize the sensor array components (encoders, IMU, etc.).
  */
 void Feather::initializeFeather() {
-    // Initialize both encoders
-    encoder1_.initializeEncoder();
-    encoder2_.initializeEncoder();
+    // Initialize GPIOs for Encoder 1
+    gpio_init(ENCODER1_PIN_A);
+    gpio_init(ENCODER1_PIN_B);
+    gpio_set_dir(ENCODER1_PIN_A, GPIO_IN);
+    gpio_set_dir(ENCODER1_PIN_B, GPIO_IN);
+    gpio_pull_up(ENCODER1_PIN_A);
+    gpio_pull_up(ENCODER1_PIN_B);
 
-    // Initialize the IMU
-    imu_.initializeIMU();
+    // Initialize GPIOs for Encoder 2
+    gpio_init(ENCODER2_PIN_A);
+    gpio_init(ENCODER2_PIN_B);
+    gpio_set_dir(ENCODER2_PIN_A, GPIO_IN);
+    gpio_set_dir(ENCODER2_PIN_B, GPIO_IN);
+    gpio_pull_up(ENCODER2_PIN_A);
+    gpio_pull_up(ENCODER2_PIN_B);
 
-    // Attach GPIO interrupts and direct to middleman function
+    // Attach a single interrupt callback to all encoder pins
     gpio_set_irq_enabled_with_callback(ENCODER1_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, gpio_callback);
     gpio_set_irq_enabled(ENCODER1_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+
+    // Initialize the IMU
+    imu_.initializeIMU();
 }
 
 /**
@@ -106,8 +118,10 @@ void Feather::process_usb_communication() {
  */
 void Feather::gpio_callback(uint gpio, uint32_t events) {
     if (gpio == ENCODER1_PIN_A || gpio == ENCODER1_PIN_B) {
-        instance_->encoder1_.handle_interrupt(gpio, events);
+        printf("Encoder 1 Interrupt\n");
+        feather_instance_->encoder1_.handle_interrupt(gpio, events);
     } else if (gpio == ENCODER2_PIN_A || gpio == ENCODER2_PIN_B) {
-        instance_->encoder2_.handle_interrupt(gpio, events);
+        printf("Encoder 2 Interrupt\n");
+        feather_instance_->encoder2_.handle_interrupt(gpio, events);
     }
 }

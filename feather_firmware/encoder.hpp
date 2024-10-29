@@ -61,7 +61,7 @@ public:
      * @brief Static interrupt service routine for handling GPIO events.
      * Updates the encoder position based on quadrature decoding.
      */
-    static void handle_interrupt(uint gpio, uint32_t events);
+    void handle_interrupt(uint gpio, uint32_t events);
 
 private:
     uint pin_a_; ///< Pin for channel A.
@@ -70,8 +70,6 @@ private:
 
     bool last_a_; ///< Last state of pin A.
     bool last_b_; ///< Last state of pin B
-
-    static Encoder* instance_;
 };
 
 #endif // ENCODER_HPP

@@ -36,6 +36,8 @@ void process_usb_communications()
                 memcpy(&encoder_positions[0], (const void *)&encoder1_position, sizeof(encoder1_position));
                 memcpy(&encoder_positions[4], (const void *)&encoder2_position, sizeof(encoder2_position));
 
+                printf("Encoder 1 Position: %ld, Encoder 2 Position: %ld\n", encoder1_position, encoder2_position);
+                
                 // Write to USB
                 tud_cdc_write(encoder_positions, sizeof(encoder_positions));
                 
