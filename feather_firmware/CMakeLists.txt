@@ -16,7 +16,7 @@ add_executable(feather_firmware
 )
     
 # Link necessary libraries
-target_link_libraries(feather_firmware pico_stdlib hardware_gpio hardware_irq hardware_uart hardware_timer hardware_i2c pico_multicore)
+target_link_libraries(feather_firmware pico_stdlib hardware_gpio hardware_irq hardware_i2c hardware_timer pico_multicore)
 
 # Might need to alter given serialized USB communications are needed
 # enable usb / disable uart

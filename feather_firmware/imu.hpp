@@ -6,7 +6,12 @@
 // Datasheet: http://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
 // Register Map: http://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf
 
+#ifndef IMU_HPP
+#define IMU_HPP
+
 #include <cstdint>
+#include <cstdio>
+#include <iostream>
 
 #define RETURN_IMU_DATA_BYTE 0x49 // 'I'
 #define IMU_DATA_BUFFER_LENGTH 14
@@ -21,10 +26,15 @@ class IMU {
         IMU();
         int16_t ax, ay, az;
         int16_t gx, gy, gz;
-        int16_t mx, my, mz;
+        int16_t temp;
 
-        void readIMU(uint8_t reg, uint8_t* buffer, uint8_t bufferLength);
-        void writeIMU(uint8_t reg, uint8_t data);
+        void readIMU(uint8_t reg, uint8_t* read_buffer, uint8_t bufferLength);
+
+        void writeIMU(uint8_t reg, uint8_t write_buffer);
 
         void initializeIMU();
+
+        void updateIMU();
 };
+
+#endif

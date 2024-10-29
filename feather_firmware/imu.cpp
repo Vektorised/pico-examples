@@ -5,6 +5,7 @@
 #include "imu.hpp"
 
 #include "pico/stdlib.h"
+#include "pico/binary_info.h"
 #include "hardware/i2c.h"
 
 IMU::IMU() {
@@ -14,33 +15,29 @@ IMU::IMU() {
     this->gx = 0;
     this->gy = 0;
     this->gz = 0;
-    this->mx = 0;
-    this->my = 0;
-    this->mz = 0;
+    this->temp = 0;
 }
 
-void IMU::readIMU(uint8_t reg, uint8_t* buffer, uint8_t bufferLength)
+void IMU::readIMU(uint8_t reg, uint8_t* read_buffer, uint8_t bufferLength)
 {
-    i2c_write_blocking(i2c0, MPU6050_ADDR, &reg, 1, true);  // Register address
-    i2c_read_blocking(i2c0, MPU6050_ADDR, buffer, bufferLength, false);  // Read data
+    i2c_write_blocking(i2c_default, MPU6050_ADDR, &reg, 1, true);  // Register address
+    i2c_read_blocking(i2c_default, MPU6050_ADDR, read_buffer, bufferLength, false);  // Read data
 }
 
 void IMU::writeIMU(uint8_t reg, uint8_t data)
 {
-    uint8_t buffer[] = {reg, data};
-    i2c_write_blocking(i2c0, MPU6050_ADDR, buffer, 2, false);
+    uint8_t write_buffer[] = {reg, data};
+    i2c_write_blocking(i2c_default, 0x68, write_buffer, 2, false);
 }
 
 void IMU::initializeIMU()
 {
     // Reset device
-    uint8_t reset_buffer[] = {0x6B, 0x00};
-    i2c_write_blocking(i2c0, MPU6050_ADDR, reset_buffer, 2, false);
+    writeIMU(0x6B, 0x80);
 
     sleep_ms(100); // Wait for reset
 
     // Wake up device
-    uint8_t wakeup_buffer[] = {0x6B, 0x00};
-    i2c_write_blocking(i2c0, MPU6050_ADDR, wakeup_buffer, 2, false);
+    writeIMU(0x6B, 0x00);
 }
 

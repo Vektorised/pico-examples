@@ -5,6 +5,9 @@ add_executable(mpu6050_i2c
 # pull in common dependencies and additional i2c hardware support
 target_link_libraries(mpu6050_i2c pico_stdlib hardware_i2c)
 
+pico_enable_stdio_usb(mpu6050_i2c 1)
+pico_enable_stdio_uart(mpu6050_i2c 0)
+
 # create map/bin/hex file etc.
 pico_add_extra_outputs(mpu6050_i2c)
 

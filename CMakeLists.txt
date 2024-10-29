@@ -89,3 +89,4 @@ add_subdirectory(sha)
 add_subdirectory(freertos)
 add_subdirectory(encoder) # Added for encoder build process
 add_subdirectory(feather_firmware) # New directory for the Adafruit Feather RP2040 firmware
+add_subdirectory(test)
