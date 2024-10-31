@@ -42,6 +42,10 @@ void Feather::initializeFeather() {
     gpio_set_irq_enabled(ENCODER2_PIN_A, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
     gpio_set_irq_enabled(ENCODER2_PIN_B, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
 
+    // Initialize the encoders
+    encoder1_.initializeEncoder();
+    encoder2_.initializeEncoder();
+
     // Initialize the IMU
     imu_.initializeIMU();
 }
@@ -62,10 +66,10 @@ void Feather::process_usb_communication() {
         uint8_t recievedByte = tud_cdc_read_char();
 
         switch (recievedByte) {
-            case RETURN_ENCODER_BYTE:
+            case RETURN_ENCODERS_BYTE:
             {
                 // Initialize buffer for encoder positions
-                uint8_t encoder_positions_buffer[ENCODER_DATA_BUFFER_LENGTH];
+                uint8_t encoder_positions_buffer[DUAL_ENCODER_DATA_BUFFER_LENGTH];
 
                 // Get encoder positions
                 int32_t encoder1_position = encoder1_.get_position();
@@ -76,10 +80,59 @@ void Feather::process_usb_communication() {
                 memcpy(&encoder_positions_buffer[4], &encoder2_position, sizeof(encoder2_position));
 
                 // Write encoder positions to USB
-                tud_cdc_write(encoder_positions_buffer, ENCODER_DATA_BUFFER_LENGTH);
+                tud_cdc_write(encoder_positions_buffer, DUAL_ENCODER_DATA_BUFFER_LENGTH);
 
                 // Flush write buffer
                 tud_cdc_write_flush();
+
+                break;
+            }
+
+            case RETURN_ENCODER_1_BYTE:
+            {
+                // Initialize buffer for encoder position
+                uint8_t encoder_position_buffer[SINGLE_ENCODER_DATA_BUFFER_LENGTH];
+
+                // Get encoder position
+                int32_t encoder1_position = encoder1_.get_position();
+
+                // Copy encoder position to buffer
+                memcpy(encoder_position_buffer, &encoder1_position, sizeof(encoder1_position));
+
+                // Write encoder position to USB
+                tud_cdc_write(encoder_position_buffer, SINGLE_ENCODER_DATA_BUFFER_LENGTH);
+
+                // Flush write buffer
+                tud_cdc_write_flush();
+
+                break;
+            }
+
+            case RETURN_ENCODER_2_BYTE:
+            {
+                // Initialize buffer for encoder position
+                uint8_t encoder_position_buffer[SINGLE_ENCODER_DATA_BUFFER_LENGTH];
+
+                // Get encoder position
+                int32_t encoder2_position = encoder2_.get_position();
+
+                // Copy encoder position to buffer
+                memcpy(encoder_position_buffer, &encoder2_position, sizeof(encoder2_position));
+
+                // Write encoder position to USB
+                tud_cdc_write(encoder_position_buffer, SINGLE_ENCODER_DATA_BUFFER_LENGTH);
+
+                // Flush write buffer
+                tud_cdc_write_flush();
+
+                break;
+            }
+            
+            case RESET_ENCODER_BYTE:
+            {
+                // Reset encoders
+                encoder1_.reset_position();
+                encoder2_.reset_position();
 
                 break;
             }
@@ -96,7 +149,7 @@ void Feather::process_usb_communication() {
                 // 6 - 7 : Temperature
                 // 8 - 13 : Gyroscope (X, Y, Z)
                 imu_.readIMU(0x3B, imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
-                
+
                 // Write IMU data buffer to USB
                 tud_cdc_write(imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
                 
@@ -116,10 +169,8 @@ void Feather::process_usb_communication() {
  */
 void Feather::gpio_callback(uint gpio, uint32_t events) {
     if (gpio == ENCODER1_PIN_A || gpio == ENCODER1_PIN_B) {
-        printf("Encoder 1 Interrupt\n");
         feather_instance_->encoder1_.handle_interrupt(gpio, events);
     } else if (gpio == ENCODER2_PIN_A || gpio == ENCODER2_PIN_B) {
-        printf("Encoder 2 Interrupt\n");
         feather_instance_->encoder2_.handle_interrupt(gpio, events);
     }
 }

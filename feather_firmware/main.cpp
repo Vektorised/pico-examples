@@ -34,7 +34,7 @@ int main() {
 
     // Temp byte to wait for
     uint8_t receivedByte;
-
+    
     // Wait for the specific byte
     do {
         receivedByte = getchar(); // Blocking read

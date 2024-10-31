@@ -27,7 +27,7 @@ void IMU::readIMU(uint8_t reg, uint8_t* read_buffer, uint8_t bufferLength)
 void IMU::writeIMU(uint8_t reg, uint8_t data)
 {
     uint8_t write_buffer[] = {reg, data};
-    i2c_write_blocking(i2c_default, 0x68, write_buffer, 2, false);
+    i2c_write_blocking(i2c_default, MPU6050_ADDR, write_buffer, 2, false);
 }
 
 void IMU::initializeIMU()
@@ -39,5 +39,15 @@ void IMU::initializeIMU()
 
     // Wake up device
     writeIMU(0x6B, 0x00);
+
+    sleep_ms(100); // Wait for wake up
+
+    // Set gyro full scale range 500dps
+    writeIMU(0x1B, 0x08);
+
+    sleep_ms(100); // Wait for change
+
+    // Set accel full scale range 4g
+    writeIMU(0x1C, 0x08);
 }
 

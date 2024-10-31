@@ -18,17 +18,7 @@ Encoder::Encoder(uint pin_a, uint pin_b)
  * @brief Initialize the encoder pins and setup interrupts.
  */
 void Encoder::initializeEncoder() {
-    // Initialize GPIO pins for the encoder
-    // gpio_init(pin_a_);
-    // gpio_init(pin_b_);
-    // gpio_set_dir(pin_a_, GPIO_IN);
-    // gpio_set_dir(pin_b_, GPIO_IN);
-    // gpio_pull_up(pin_a_);
-    // gpio_pull_up(pin_b_);
-
-    // // Attach interrupts to encoder pins
-    // gpio_set_irq_enabled_with_callback(pin_a_, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, handle_interrupt);
-    // gpio_set_irq_enabled(pin_b_, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    this->position_ = 0;
 }
 
 /**
@@ -57,12 +47,12 @@ void Encoder::handle_interrupt(uint gpio, uint32_t events) {
  * @return int32_t Current encoder position.
  */
 int32_t Encoder::get_position() const {
-    return position_;
+    return this->position_;
 }
 
 /**
  * @brief Reset the encoder position to zero.
  */
 void Encoder::reset_position() {
-    position_ = 0;
+    this->position_ = 0;
 }
