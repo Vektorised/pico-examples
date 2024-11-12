@@ -19,7 +19,6 @@
 #define RETURN_ENCODERS_BYTE 0x45 // 'E'
 #define RETURN_ENCODER_1_BYTE 0x31 // '1'
 #define RETURN_ENCODER_2_BYTE 0x32 // '2'
-#define RESET_ENCODER_BYTE 0x5A // 'Z'
 
 // Removed rpm function as it can be calculated faster on jetson side
 

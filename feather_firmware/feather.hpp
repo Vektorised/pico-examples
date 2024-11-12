@@ -8,6 +8,7 @@
 #include "hardware/i2c.h"
 
 #define INITIALIZE_SENSORS_BYTE 0x49 // 'I'
+#define RESET_SENSORS_BYTE 0x5A // 'Z'
 
 /**
  * @class Feather
@@ -24,6 +25,11 @@ public:
      * @brief Initialize the robot's components (encoders, IMU, etc.).
      */
     void initializeFeather();
+
+    /**
+     * @brief Reset the sensor values (encoders, IMU, etc.).
+     */
+    void resetFeather();
 
     /**
      * @brief Process usb command and return apporpriate response.

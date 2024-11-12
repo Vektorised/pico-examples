@@ -51,3 +51,12 @@ void IMU::initializeIMU()
     writeIMU(0x1C, 0x08);
 }
 
+void IMU::resetIMU()
+{
+    this->ax = 0;
+    this->ay = 0;
+    this->az = 0;
+    this->gx = 0;
+    this->gy = 0;
+    this->gz = 0;
+}

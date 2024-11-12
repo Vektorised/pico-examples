@@ -34,6 +34,8 @@ class IMU {
 
         void initializeIMU();
 
+        void resetIMU();
+
         void updateIMU();
 };
 

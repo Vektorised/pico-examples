@@ -50,6 +50,15 @@ void Feather::initializeFeather() {
     imu_.initializeIMU();
 }
 
+void Feather::resetFeather() {
+    // Reset encoder positions
+    encoder1_.reset_position();
+    encoder2_.reset_position();
+
+    // Reset IMU
+    imu_.resetIMU();
+}
+
 /**
  * @brief Main loop of the robot.
  * This will handle periodic tasks such as reading sensor data.
@@ -128,12 +137,11 @@ void Feather::process_usb_communication() {
                 break;
             }
             
-            case RESET_ENCODER_BYTE:
+            case RESET_SENSORS_BYTE:
             {
-                // Reset encoders
-                encoder1_.reset_position();
-                encoder2_.reset_position();
-
+                // Reset sensors
+                resetFeather();
+                
                 break;
             }
 
