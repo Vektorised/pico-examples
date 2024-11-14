@@ -4,6 +4,11 @@
 
 #include "imu.hpp"
 
+// Standard Libraries
+#include <cstdio>
+#include <iostream>
+
+// Pico Libraries
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
 #include "hardware/i2c.h"
@@ -59,4 +64,5 @@ void IMU::resetIMU()
     this->gx = 0;
     this->gy = 0;
     this->gz = 0;
+    this->temp = 0;
 }

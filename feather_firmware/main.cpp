@@ -2,13 +2,16 @@
 // Carson Powers
 // Main entry point for the Feather firmware on the AHSR robot
 
+// Custom Hardware Libraries
 #include "feather.hpp"
 #include "encoder.hpp"
 #include "imu.hpp"
 
+// Standard Libraries
 #include <stdio.h>
-#include <string.h>
 
+// Pico Libraries
+#include "tusb.h"
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
 #include "hardware/i2c.h"
@@ -43,7 +46,7 @@ int main() {
     // Initialize the feather (encoders, IMU, etc.)
     feather.initializeFeather();
 
-    // Main control loop
+    // Main control loop (infinite loop)
     feather.loop();
 
     return 0;

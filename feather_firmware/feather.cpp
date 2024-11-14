@@ -1,4 +1,13 @@
+// feather.cpp
+// Carson Powers
+// Source file for the Feather functionality on the Adafruit Feather RP2040 on the AHSR robot
+
+// Feather Header
 #include "feather.hpp"
+
+// Pico Libraries
+#include "pico/stdlib.h"
+#include "tusb.h"
 
 // Initialize the static instance pointer
 Feather* Feather::feather_instance_ = nullptr;
@@ -71,101 +80,106 @@ void Feather::loop() {
 }
 
 void Feather::process_usb_communication() {
-    if (tud_cdc_available()) {
-        uint8_t recievedByte = tud_cdc_read_char();
+    // Check if data is available
+    if (!tud_cdc_available()) {
+        return; // Escape function
+    }
 
-        switch (recievedByte) {
-            case RETURN_ENCODERS_BYTE:
-            {
-                // Initialize buffer for encoder positions
-                uint8_t encoder_positions_buffer[DUAL_ENCODER_DATA_BUFFER_LENGTH];
+    // Read byte from USB
+    uint8_t recievedByte = tud_cdc_read_char();
 
-                // Get encoder positions
-                int32_t encoder1_position = encoder1_.get_position();
-                int32_t encoder2_position = encoder2_.get_position();
+    // Process byte
+    switch (recievedByte) {
+        case RETURN_ENCODERS_BYTE:
+        {
+            // Initialize buffer for encoder positions
+            uint8_t encoder_positions_buffer[DUAL_ENCODER_DATA_BUFFER_LENGTH];
 
-                // Copy encoder positions to buffer
-                memcpy(&encoder_positions_buffer[0], &encoder1_position, sizeof(encoder1_position));
-                memcpy(&encoder_positions_buffer[4], &encoder2_position, sizeof(encoder2_position));
+            // Get encoder positions
+            int32_t encoder1_position = encoder1_.get_position();
+            int32_t encoder2_position = encoder2_.get_position();
 
-                // Write encoder positions to USB
-                tud_cdc_write(encoder_positions_buffer, DUAL_ENCODER_DATA_BUFFER_LENGTH);
+            // Copy encoder positions to buffer
+            memcpy(&encoder_positions_buffer[0], &encoder1_position, sizeof(encoder1_position));
+            memcpy(&encoder_positions_buffer[4], &encoder2_position, sizeof(encoder2_position));
 
-                // Flush write buffer
-                tud_cdc_write_flush();
+            // Write encoder positions to USB
+            tud_cdc_write(encoder_positions_buffer, DUAL_ENCODER_DATA_BUFFER_LENGTH);
 
-                break;
-            }
+            // Flush write buffer
+            tud_cdc_write_flush();
 
-            case RETURN_ENCODER_1_BYTE:
-            {
-                // Initialize buffer for encoder position
-                uint8_t encoder_position_buffer[SINGLE_ENCODER_DATA_BUFFER_LENGTH];
+            break;
+        }
 
-                // Get encoder position
-                int32_t encoder1_position = encoder1_.get_position();
+        case RETURN_ENCODER_1_BYTE:
+        {
+            // Initialize buffer for encoder position
+            uint8_t encoder_position_buffer[SINGLE_ENCODER_DATA_BUFFER_LENGTH];
 
-                // Copy encoder position to buffer
-                memcpy(encoder_position_buffer, &encoder1_position, sizeof(encoder1_position));
+            // Get encoder position
+            int32_t encoder1_position = encoder1_.get_position();
 
-                // Write encoder position to USB
-                tud_cdc_write(encoder_position_buffer, SINGLE_ENCODER_DATA_BUFFER_LENGTH);
+            // Copy encoder position to buffer
+            memcpy(encoder_position_buffer, &encoder1_position, sizeof(encoder1_position));
 
-                // Flush write buffer
-                tud_cdc_write_flush();
+            // Write encoder position to USB
+            tud_cdc_write(encoder_position_buffer, SINGLE_ENCODER_DATA_BUFFER_LENGTH);
 
-                break;
-            }
+            // Flush write buffer
+            tud_cdc_write_flush();
 
-            case RETURN_ENCODER_2_BYTE:
-            {
-                // Initialize buffer for encoder position
-                uint8_t encoder_position_buffer[SINGLE_ENCODER_DATA_BUFFER_LENGTH];
+            break;
+        }
 
-                // Get encoder position
-                int32_t encoder2_position = encoder2_.get_position();
+        case RETURN_ENCODER_2_BYTE:
+        {
+            // Initialize buffer for encoder position
+            uint8_t encoder_position_buffer[SINGLE_ENCODER_DATA_BUFFER_LENGTH];
 
-                // Copy encoder position to buffer
-                memcpy(encoder_position_buffer, &encoder2_position, sizeof(encoder2_position));
+            // Get encoder position
+            int32_t encoder2_position = encoder2_.get_position();
 
-                // Write encoder position to USB
-                tud_cdc_write(encoder_position_buffer, SINGLE_ENCODER_DATA_BUFFER_LENGTH);
+            // Copy encoder position to buffer
+            memcpy(encoder_position_buffer, &encoder2_position, sizeof(encoder2_position));
 
-                // Flush write buffer
-                tud_cdc_write_flush();
+            // Write encoder position to USB
+            tud_cdc_write(encoder_position_buffer, SINGLE_ENCODER_DATA_BUFFER_LENGTH);
 
-                break;
-            }
+            // Flush write buffer
+            tud_cdc_write_flush();
+
+            break;
+        }
+        
+        case RESET_SENSORS_BYTE:
+        {
+            // Reset sensors
+            resetFeather();
             
-            case RESET_SENSORS_BYTE:
-            {
-                // Reset sensors
-                resetFeather();
-                
-                break;
-            }
+            break;
+        }
 
-            case RETURN_IMU_DATA_BYTE:
-            {
-                // Initialize buffer for IMU data
-                uint8_t imu_data_buffer[IMU_DATA_BUFFER_LENGTH];
-                
-                // Read IMU data registers (0x38 - 0x48)
-                // Data is 2 bytes per DOF, little endian
-                // Indicies:
-                // 0 - 5 : Accelerometer (X, Y, Z)
-                // 6 - 7 : Temperature
-                // 8 - 13 : Gyroscope (X, Y, Z)
-                imu_.readIMU(0x3B, imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
+        case RETURN_IMU_DATA_BYTE:
+        {
+            // Initialize buffer for IMU data
+            uint8_t imu_data_buffer[IMU_DATA_BUFFER_LENGTH];
+            
+            // Read IMU data registers (0x38 - 0x48)
+            // Data is 2 bytes per DOF, little endian
+            // Indicies:
+            // 0 - 5 : Accelerometer (X, Y, Z)
+            // 6 - 7 : Temperature
+            // 8 - 13 : Gyroscope (X, Y, Z)
+            imu_.readIMU(IMU_READ_START_BYTE, imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
 
-                // Write IMU data buffer to USB
-                tud_cdc_write(imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
-                
-                // Flush write buffer
-                tud_cdc_write_flush();
-                
-                break;
-            }
+            // Write IMU data buffer to USB
+            tud_cdc_write(imu_data_buffer, IMU_DATA_BUFFER_LENGTH);
+            
+            // Flush write buffer
+            tud_cdc_write_flush();
+            
+            break;
         }
     }
 }
